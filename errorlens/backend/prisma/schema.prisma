@@ -57,5 +57,13 @@ model Feedback {
   createdAt     DateTime    @default(now())
 }
 
-enum Plan   { FREE PRO TEAM }
-enum Rating { THUMBS_UP THUMBS_DOWN }
+enum Plan {
+  FREE
+  PRO
+  TEAM
+}
+
+enum Rating {
+  THUMBS_UP
+  THUMBS_DOWN
+}

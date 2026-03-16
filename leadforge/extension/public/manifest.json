@@ -1,0 +1,57 @@
+{
+  "manifest_version": 3,
+  "name": "LeadForge — AI Lead Generation",
+  "version": "1.0.0",
+  "description": "Find, enrich, and reach out to leads on LinkedIn, any website, GitHub and more.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "tabs",
+    "storage",
+    "identity",
+    "sidePanel",
+    "alarms",
+    "notifications"
+  ],
+  "host_permissions": [
+    "http://localhost:3000/*",
+    "http://127.0.0.1/*",
+    "https://linkedin.com/*",
+    "https://*.linkedin.com/*",
+    "https://www.linkedin.com/*",
+    "https://sales.linkedin.com/*",
+    "https://sales.linkedin.com/*",
+    "https://recruiter.linkedin.com/*",
+    "https://github.com/*",
+    "https://www.crunchbase.com/*",
+    "https://wellfound.com/*",
+    "https://*/*",
+    "http://*/*"
+  ],
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "index.html"
+  },
+  "side_panel": {
+    "default_path": "index.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://linkedin.com/*", "https://*.linkedin.com/*", "https://www.linkedin.com/*", "https://sales.linkedin.com/*"],
+      "js": ["content/linkedin.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://*/*", "http://*/*"],
+      "exclude_matches": ["https://www.linkedin.com/*", "https://sales.linkedin.com/*"],
+      "js": ["content/smart-scrape.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' http://localhost:3000 http://127.0.0.1 https://* http://*"
+  }
+}

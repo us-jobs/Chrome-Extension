@@ -1,0 +1,227 @@
+// backend/shared/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String
+  passwordHash  String
+  geminiApiKey  String?
+  plan          Plan     @default(FREE)
+  credits       Int      @default(50)
+  creditsCarriedOver Int @default(0)
+  createdAt     DateTime @default(now())
+  contacts      Contact[]
+  sequences     Sequence[]
+  crmConnections CrmConnection[]
+  auditLogs     AuditLog[]
+}
+
+model Contact {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id])
+  
+  // Identity
+  firstName         String
+  lastName          String
+  fullName          String
+  title             String?
+  seniority         String?  // C-Suite, VP, Director, Manager, IC
+  
+  // Contact Info
+  email             String?
+  emailStatus       EmailStatus @default(UNVERIFIED)
+  emailVerifiedAt   DateTime?
+  phone             String?      // E.164 format
+  phoneType         PhoneType?   // MOBILE, LANDLINE, VOIP
+  phoneValidatedAt  DateTime?
+  phoneValid        Boolean?
+  
+  // Company
+  company           String?
+  companyDomain     String?
+  companySize       String?
+  companyIndustry   String?
+  companyTechStack  String[]
+  companyFunding    String?
+  companyRevenue    String?
+  
+  // Social
+  linkedinUrl       String?
+  githubUrl         String?
+  twitterUrl        String?
+  
+  // Location
+  city              String?
+  state             String?
+  country           String?
+  gdprSubject       Boolean  @default(false)
+  
+  // Intelligence
+  intentScore       Int?     // 0-100
+  intentUpdatedAt   DateTime?
+  
+  // Source
+  source            ContactSource  // LINKEDIN, WEBSITE, MANUAL, IMPORT
+  sourceUrl         String?
+  
+  // Consent (GDPR)
+  consentStatus     ConsentStatus @default(LEGITIMATE_INTEREST)
+  consentGrantedAt  DateTime?
+  optedOutAt        DateTime?
+  
+  // Meta
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  lastEnrichedAt    DateTime?
+  completenessScore Int      @default(0)  // 0-100
+  
+  sequenceEnrollments SequenceEnrollment[]
+  crmSyncs            CrmSync[]
+  auditLogs           AuditLog[]
+  
+  @@index([userId, email])
+  @@index([userId, companyDomain])
+  @@index([userId, linkedinUrl])
+}
+
+model Sequence {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  name        String
+  status      SequenceStatus @default(DRAFT)
+  steps       SequenceStep[]
+  enrollments SequenceEnrollment[]
+  createdAt   DateTime @default(now())
+}
+
+model SequenceStep {
+  id           String   @id @default(cuid())
+  sequenceId   String
+  sequence     Sequence @relation(fields: [sequenceId], references: [id])
+  order        Int
+  type         StepType  // EMAIL, LINKEDIN_DM, LINKEDIN_CONNECT, CALL, SMS, WAIT, CONDITION
+  delayHours   Int       @default(0)
+  subject      String?
+  body         String?
+  aiPersonalize Boolean @default(false)
+  sendWindowStart Int?  // Hour in day (0-23)
+  sendWindowEnd   Int?
+  sendOnWeekends  Boolean @default(false)
+  variantB     Json?     // A/B test variant
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  contactId   String?
+  contact     Contact? @relation(fields: [contactId], references: [id])
+  action      String   // VIEWED, EXPORTED, ENRICHED, DELETED, OPTED_OUT, etc.
+  metadata    Json?
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+  
+  @@index([userId, createdAt])
+}
+
+model CrmConnection {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  provider    String
+  accessToken String
+  refreshToken String?
+  expiresAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  syncs       CrmSync[]
+}
+
+model CrmSync {
+  id          String   @id @default(cuid())
+  contactId   String
+  contact     Contact  @relation(fields: [contactId], references: [id])
+  connectionId String
+  connection   CrmConnection @relation(fields: [connectionId], references: [id])
+  syncStatus   String   // PENDING, SUCCESS, FAILED
+  errorMessage String?
+  createdAt    DateTime @default(now())
+}
+
+model SequenceEnrollment {
+  id          String   @id @default(cuid())
+  contactId   String
+  contact     Contact  @relation(fields: [contactId], references: [id])
+  sequenceId  String
+  sequence    Sequence @relation(fields: [sequenceId], references: [id])
+  status      String   // ACTIVE, PAUSED, COMPLETED, FAILED
+  currentStep Int      @default(1)
+  enrolledAt  DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum Plan {
+  FREE
+  PRO
+  TEAM
+  ENTERPRISE
+}
+
+enum EmailStatus {
+  UNVERIFIED
+  VALID
+  RISKY
+  INVALID
+}
+
+enum PhoneType {
+  MOBILE
+  LANDLINE
+  VOIP
+  UNKNOWN
+}
+
+enum ContactSource {
+  LINKEDIN
+  WEBSITE
+  GITHUB
+  CRUNCHBASE
+  MANUAL
+  IMPORT
+}
+
+enum ConsentStatus {
+  LEGITIMATE_INTEREST
+  CONSENT_PENDING
+  CONSENTED
+  OPTED_OUT
+}
+
+enum SequenceStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+enum StepType {
+  EMAIL
+  LINKEDIN_DM
+  LINKEDIN_CONNECT
+  CALL
+  SMS
+  WAIT
+  CONDITION
+}

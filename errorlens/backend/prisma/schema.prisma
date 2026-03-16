@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String   @id @default(cuid())
+  googleId         String?  @unique
+  email            String?  @unique
+  name             String?
+  avatarUrl        String?
+  plan             Plan     @default(FREE)
+  stripeCustomerId String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  explanations     Explanation[]
+  feedback         Feedback[]
+  
+  @@index([googleId])
+  @@index([email])
+}
+
+model Explanation {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  errorText   String   @db.VarChar(500)
+  stackTrace  String?  @db.Text
+  explanation String   @db.Text
+  pageUrl     String?  @db.VarChar(500)
+  
+  tokensUsed  Int?
+  latencyMs   Int?
+  
+  createdAt   DateTime @default(now())
+  
+  feedback    Feedback?
+  
+  @@index([userId, createdAt])
+}
+
+model Feedback {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  explanationId String      @unique
+  explanation   Explanation @relation(fields: [explanationId], references: [id])
+  
+  rating        Rating
+  comment       String?
+  createdAt     DateTime    @default(now())
+}
+
+enum Plan   { FREE PRO TEAM }
+enum Rating { THUMBS_UP THUMBS_DOWN }

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    :root {
+      --error-color: #d93025;
+      --warning-color: #f29900;
+      --success-color: #1e8e3e;
+      --code-bg: #f1f3f4;
+      --border: #dadce0;
+      --text: #202124;
+      --bg: #ffffff;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --code-bg: #303134;
+        --border: #3c4043;
+        --text: #e8eaed;
+        --bg: #202124;
+      }
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      background-color: var(--bg);
+      margin: 0;
+      padding: 16px;
+    }
+    .panel-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .state { display: none; }
+    .state.active { display: block; }
+    
+    .errorlens-explain-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      margin-top: 8px;
+      font-size: 12px;
+      font-family: monospace;
+      font-weight: bold;
+      color: #1a73e8;
+      background: transparent;
+      border: 1px solid #1a73e8;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .errorlens-explain-btn:hover {
+      background: rgba(26, 115, 232, 0.08);
+    }
+    
+    .error-card {
+      border: 1px solid var(--error-color);
+      border-left: 4px solid var(--error-color);
+      padding: 12px;
+      margin-bottom: 16px;
+      border-radius: 4px;
+      background: var(--code-bg);
+      font-family: monospace;
+      word-break: break-all;
+    }
+    
+    #explanation-content {
+      line-height: 1.5;
+    }
+    #explanation-content pre {
+      background: var(--code-bg);
+      padding: 12px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    #explanation-content code {
+      font-family: 'Courier New', Courier, monospace;
+    }
+    .action-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .action-btn:hover {
+      background: var(--code-bg);
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+  <script type="module" crossorigin src="/assets/panel-BTPoB7lY.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/assets/auth-BFEsSH7d.js">
+</head>
+<body>
+  <div class="panel-container">
+    <!-- View 1: Waiting State -->
+    <div id="state-waiting" class="state active">
+      <h3>🔍 ErrorLens</h3>
+      <p>Watching for console errors...</p>
+      <p>Click "Explain ↗" on any error detected.</p>
+      <div id="latest-error-preview"></div>
+    </div>
+    
+    <!-- View 2: Loading State -->
+    <div id="state-loading" class="state">
+      <h3>🔍 ErrorLens <button id="btn-cancel" class="action-btn" style="float: right;">✕ Close</button></h3>
+      <div id="loading-error" class="error-card"></div>
+      <p>⣾ Analyzing with Gemini 2.5 Flash...</p>
+      <div id="loading-stream"></div>
+    </div>
+    
+    <!-- View 3: Result State -->
+    <div id="state-result" class="state">
+      <h3>🔍 ErrorLens 
+        <div style="float: right; display: flex; gap: 8px;">
+          <button id="btn-copy" class="action-btn">Copy</button>
+          <button id="btn-close" class="action-btn">✕</button>
+        </div>
+      </h3>
+      <div id="result-error" class="error-card"></div>
+      <div id="explanation-content"></div>
+      <div id="feedback-actions" style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px; display: none;">
+        <button id="btn-thumbs-up" class="action-btn">👍 Helpful</button>
+        <button id="btn-thumbs-down" class="action-btn">👎 Not Helpful</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

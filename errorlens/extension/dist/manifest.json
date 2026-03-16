@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "ErrorLens — AI Console Error Explainer",
+  "version": "1.0.0",
+  "description": "One-click AI explanations for any console error. Powered by Gemini 2.5 Flash.",
+  "permissions": [
+    "storage",
+    "identity",
+    "debugger"
+  ],
+  "host_permissions": [
+    "https://errorlens-api.onrender.com/*",
+    "http://localhost:3000/*",
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "devtools_page": "src/devtools/devtools.html",
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  }
+}

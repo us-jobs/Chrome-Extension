@@ -6,7 +6,7 @@ async function init() {
   
   // Usage
   try {
-    const res = await fetch('http://localhost:3000/usage', {
+    const res = await fetch('https://chrome-extension-errorlens.onrender.com/usage', {
       headers: { Authorization: `Bearer ${token}` }
     });
     const data = await res.json();
@@ -24,7 +24,7 @@ async function init() {
 
   // History
   try {
-    const res = await fetch('http://localhost:3000/history', {
+    const res = await fetch('https://chrome-extension-errorlens.onrender.com/history', {
       headers: { Authorization: `Bearer ${token}` }
     });
     const history = await res.json();

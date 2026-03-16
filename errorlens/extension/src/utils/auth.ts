@@ -4,7 +4,7 @@ export async function getAuthToken(): Promise<string> {
 
   // Fallback to guest token
   try {
-    const res = await fetch('http://localhost:3000/auth/guest', { method: 'POST' });
+    const res = await fetch('https://chrome-extension-errorlens.onrender.com/auth/guest', { method: 'POST' });
     const data = await res.json();
     if (data.guestToken) {
       await chrome.storage.local.set({ accessToken: data.guestToken });
@@ -19,7 +19,7 @@ export async function getAuthToken(): Promise<string> {
 export async function checkUsage(token: string): Promise<boolean> {
   if (!token) return true;
   try {
-    const res = await fetch('http://localhost:3000/usage', {
+    const res = await fetch('https://chrome-extension-errorlens.onrender.com/usage', {
       headers: { Authorization: `Bearer ${token}` }
     });
     const data = await res.json();

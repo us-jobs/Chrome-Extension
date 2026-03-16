@@ -72,7 +72,7 @@ async function handleExplainClick(errorPayload: ErrorPayload) {
   }
   
   try {
-    const response = await fetch("http://localhost:3000/explain", {
+    const response = await fetch("https://chrome-extension-errorlens.onrender.com/explain", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -128,7 +128,7 @@ async function handleExplainClick(errorPayload: ErrorPayload) {
     console.error(err);
     switchState('result');
     resultErrorEl.textContent = errorPayload.message;
-    explanationContentEl.innerHTML = `<p style="color: var(--error-color);">Failed to connect to ErrorLens API. Ensure local server is running on port 3000.</p>`;
+    explanationContentEl.innerHTML = `<p style="color: var(--error-color);">Failed to connect to ErrorLens API. Ensure you have an internet connection.</p>`;
   }
 }
 
